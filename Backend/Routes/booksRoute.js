@@ -37,6 +37,7 @@ router.post('/', async (request, response) => {
 });
 
 // Route for Get All Books from database
+
 router.get('/', async (request, response) => {
   try {
     const books = await Book.find({});
@@ -50,6 +51,26 @@ router.get('/', async (request, response) => {
     response.status(500).send({ message: error.message });
   }
 });
+
+// Route for get wanted books
+
+router.post('/findBook', async (request, response) => {
+  try {
+    const titleToFind = request.body.title;
+
+    const books = await Book.find({ title: { $regex: titleToFind, $options: 'i' } });
+
+    if (books.length === 0) {
+      return response.status(404).json({ message: 'No books found' });
+    }
+
+    return response.status(200).json(books);
+  } catch (error) {
+    console.error(error.message);
+    response.status(500).send({ message: 'Internal server error' });
+  }
+});
+
 
 // Route for Get One Book from database by id
 router.get('/:id', async (request, response) => {
